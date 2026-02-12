@@ -3,6 +3,8 @@ import pandas as pd
 import joblib
 import shap
 import matplotlib.pyplot as plt
+import os
+import zipfile
 
 # -------------------------
 # Page config
@@ -10,30 +12,22 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Bank Subscription Predictor", layout="wide")
 
 # -------------------------
-# Load model + features
-# -------------------------
-import os
-import zipfile
-import joblib
-
-# -------------------------
-# Ensure model file exists (unzip if needed)
+# Ensure model exists (unzip if needed)
 # -------------------------
 if not os.path.exists("rf_model.pkl") and os.path.exists("rf_model.zip"):
     with zipfile.ZipFile("rf_model.zip", "r") as zip_ref:
         zip_ref.extractall()
 
 # -------------------------
-# Load model
+# Load model + features
 # -------------------------
 model = joblib.load("rf_model.pkl")
-
-# -------------------------
-# Load feature names
-# -------------------------
 model_features = joblib.load("model_features.pkl")
 
-
+# -------------------------
+# SHAP Tree Explainer (stable for deployment)
+# -------------------------
+explainer = shap.TreeExplainer(model)
 
 # -------------------------
 # Title
@@ -58,11 +52,10 @@ housing_yes = st.sidebar.selectbox("Housing Loan", [0, 1])
 loan_yes = st.sidebar.selectbox("Personal Loan", [0, 1])
 
 # -------------------------
-# Predict button
+# Predict
 # -------------------------
 if st.sidebar.button("Predict Subscription"):
 
-    # Create input row
     input_data = pd.DataFrame([[0]*len(model_features)], columns=model_features)
 
     if 'age' in input_data.columns:
@@ -98,14 +91,25 @@ if st.sidebar.button("Predict Subscription"):
     st.divider()
 
     # -------------------------
-    # SHAP explanation
+    # SHAP explanation (stable)
     # -------------------------
     st.subheader("🔍 Why did the model predict this?")
 
-    shap_values = explainer(input_data)
+    shap_values = explainer.shap_values(input_data)
+
+    explanation = shap.Explanation(
+        values=shap_values[1][0],
+        base_values=explainer.expected_value[1],
+        data=input_data.iloc[0],
+        feature_names=input_data.columns
+    )
 
     fig, ax = plt.subplots()
+    shap.plots.waterfall(explanation, show=False)
+    st.pyplot(fig)
+
     shap.plots.waterfall(shap_values[0, :, 1], show=False)
     st.pyplot(fig)
+
 
 
