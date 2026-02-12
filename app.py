@@ -88,7 +88,7 @@ if st.sidebar.button("Predict Subscription"):
 
     st.metric("Subscription Probability", f"{prob:.2%}")
 
-    st.divider()
+    
 
     # -------------------------
     # SHAP explanation (stable)
@@ -100,6 +100,7 @@ if st.sidebar.button("Predict Subscription"):
     "Feature contribution explanation is available in the analysis notebook. "
     "Interactive SHAP visualization will be added in a future update."
 )
+
 
 
 
