@@ -93,13 +93,14 @@ if st.sidebar.button("Predict Subscription"):
     # -------------------------
     # SHAP explanation (stable)
     # -------------------------
-   st.divider()
-   st.subheader("🔍 Model Explanation")
+    st.divider()
+    st.subheader("🔍 Model Explanation")
 
-   st.info(
+    st.info(
     "Feature contribution explanation is available in the analysis notebook. "
     "Interactive SHAP visualization will be added in a future update."
 )
+
 
 
 
