@@ -95,14 +95,11 @@ if st.sidebar.button("Predict Subscription"):
     # -------------------------
     st.subheader("🔍 Why did the model predict this?")
 
-    shap_values = explainer.shap_values(input_data)
+shap_values = explainer(input_data)
 
-    explanation = shap.Explanation(
-        values=shap_values[1][0],
-        base_values=explainer.expected_value[1],
-        data=input_data.iloc[0],
-        feature_names=input_data.columns
-    )
+fig, ax = plt.subplots()
+shap.plots.waterfall(shap_values[0], show=False)
+st.pyplot(fig)
 
     fig, ax = plt.subplots()
     shap.plots.waterfall(explanation, show=False)
@@ -110,6 +107,7 @@ if st.sidebar.button("Predict Subscription"):
 
     shap.plots.waterfall(shap_values[0, :, 1], show=False)
     st.pyplot(fig)
+
 
 
 
