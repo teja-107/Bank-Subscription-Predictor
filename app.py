@@ -12,10 +12,15 @@ st.set_page_config(page_title="Bank Subscription Predictor", layout="wide")
 # -------------------------
 # Load model + features
 # -------------------------
-model = joblib.load("rf_model.pkl")
-model_features = joblib.load("model_features.pkl")
+import zipfile
+import os
 
-explainer = shap.Explainer(model)
+if not os.path.exists("rf_model.pkl"):
+    with zipfile.ZipFile("rf_model.zip", "r") as zip_ref:
+        zip_ref.extractall()
+
+model = joblib.load("rf_model.pkl")
+
 
 # -------------------------
 # Title
@@ -89,3 +94,4 @@ if st.sidebar.button("Predict Subscription"):
     fig, ax = plt.subplots()
     shap.plots.waterfall(shap_values[0, :, 1], show=False)
     st.pyplot(fig)
+
