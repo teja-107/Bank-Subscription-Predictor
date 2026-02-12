@@ -93,20 +93,15 @@ if st.sidebar.button("Predict Subscription"):
     # -------------------------
     # SHAP explanation (stable)
     # -------------------------
-    st.subheader("🔍 Why did the model predict this?")
+   st.divider()
+   st.subheader("🔍 Model Explanation")
 
-    shap_values = explainer(input_data)
+   st.info(
+    "Feature contribution explanation is available in the analysis notebook. "
+    "Interactive SHAP visualization will be added in a future update."
+)
 
-    fig, ax = plt.subplots()
-    shap.plots.waterfall(shap_values[0], show=False)
-    st.pyplot(fig)
 
-    fig, ax = plt.subplots()
-    shap.plots.waterfall(explanation, show=False)
-    st.pyplot(fig)
-
-    shap.plots.waterfall(shap_values[0, :, 1], show=False)
-    st.pyplot(fig)
 
 
 
