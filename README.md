@@ -1,38 +1,68 @@
-Bank Term Deposit Subscription Prediction
-Overview:
+# Bank Term Deposit Subscription Predictor
 
-This project builds an end-to-end machine learning system to predict whether a bank customer will subscribe to a term deposit. The goal is to support targeted marketing decisions before contacting customers.
+Predicts whether a bank customer will subscribe to a term deposit, to help
+prioritize who a marketing team should call.
 
-Dataset:
+**Live app:** https://bank-subscription-predictor-6f7e87vwrf49dpupr7ffzz.streamlit.app/
 
-Bank Marketing dataset (11k+ customers, demographic, financial, and campaign interaction features).
+## Overview
 
-Key Features:
+This project trains a classifier on the UCI Bank Marketing dataset and ships
+it as an interactive Streamlit app. Given a customer's demographics, financial
+info, and contact history, it predicts subscription likelihood and shows
+which factors drove that specific prediction.
 
-*Data preprocessing and feature encoding
+## Dataset
 
-*Model comparison (Logistic Regression vs Random Forest)
+`bank.csv` — Bank Marketing dataset (11k+ customers), with demographic,
+financial, and campaign interaction features. [UCI Machine Learning
+Repository](https://archive.ics.uci.edu/dataset/222/bank+marketing)
 
-*Data leakage detection and removal
+## What's in this repo
 
-*Model explainability using SHAP
+- **`bank_subscription_analysis.ipynb`** — data exploration, preprocessing,
+  and model training (Logistic Regression vs. Random Forest)
+- **`app.py`** — the Streamlit app: takes all 41 model features as input and
+  returns a prediction plus a SHAP-based explanation of the top drivers
+- **`rf_model.zip`** — the trained Random Forest model (unzipped automatically
+  by the app)
+- **`model_features.pkl`** — the exact feature order the model expects
 
-*Fairness analysis using Disparate Impact
+## Key steps
 
-*Interactive prediction web app using Streamlit
+- Removed `duration` before training — it's only known *after* a call
+  happens, so keeping it in would leak the outcome into the features
+- Compared Logistic Regression against Random Forest
+- A preliminary fairness check compares subscription rates across marital
+  status groups as a sanity check for bias (not a full disparate-impact
+  audit — see Limitations)
 
-*Cloud deployment
+## Model performance
 
-*Model Performance
+| Model | ROC-AUC |
+|---|---|
+| Logistic Regression | 0.77 |
+| Random Forest | 0.78 |
 
-*Logistic Regression ROC-AUC: 0.77 (no leakage)
+(Both scores are after removing `duration` to eliminate leakage.)
 
-*Random Forest ROC-AUC: 0.79 (no leakage)
+## Running locally
 
-Live Application:
-Try the deployed app here:
-https://bank-subscription-predictor-6f7e87vwrf49dpupr7ffzz.streamlit.app/
+```bash
+git clone https://github.com/teja-107/Bank-Subscription-Predictor.git
+cd Bank-Subscription-Predictor
+pip install -r requirements.txt
+streamlit run app.py
+```
 
-Tech Stack
+## Tech stack
 
-Python, Pandas, Scikit-Learn, SHAP, Streamlit, Matplotlib
+Python, Pandas, Scikit-learn, SHAP, Streamlit, Matplotlib
+
+## Limitations / next steps
+
+- The fairness check is a single-group rate comparison, not a full
+  disparate-impact analysis across all protected attributes
+- The notebook doesn't yet include the step that saves the final model to
+  `rf_model.pkl` / `model_features.pkl` — that's currently done separately
+- No automated tests yet
