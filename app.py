@@ -138,8 +138,23 @@ if st.sidebar.button("Predict Subscription"):
 
     shap_values = explainer.shap_values(input_data)
 
-    # For a binary RandomForestClassifier, shap_values is a list [class_0, class_1]
-    values_for_class_1 = shap_values[1][0] if isinstance(shap_values, list) else shap_values[0]
+    # Different shap versions return different shapes for a binary classifier:
+    #   - old API: a list [class_0_array, class_1_array], each (n_samples, n_features)
+    #   - newer API: a single ndarray shaped (n_samples, n_features, n_classes)
+    # This handles both so the app doesn't break when shap gets upgraded.
+    if isinstance(shap_values, list):
+        # old API: list of per-class arrays
+        raw_values = shap_values[1][0]
+    else:
+        row = shap_values[0]
+        if row.ndim == 2:
+            # new API: (n_features, n_classes) -> take the "subscribe" class column
+            class_idx = 1 if row.shape[1] > 1 else 0
+            raw_values = row[:, class_idx]
+        else:
+            raw_values = row
+
+    values_for_class_1 = raw_values
 
     contrib = (
         pd.Series(values_for_class_1, index=model_features)
